@@ -20,6 +20,8 @@ import javafx.event.ActionEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.KeyCode;
 import javafx.stage.WindowEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.MouseButton;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -29,10 +31,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import java.util.Date;
-
-
- import javafx.scene.image.Image;
- import javafx.scene.image.ImageView;
+import java.util.ArrayList;
 
 public class TheRoyalGameOfUr extends Application{
 	private DataOutputStream dataOut = null;
@@ -52,10 +51,11 @@ public class TheRoyalGameOfUr extends Application{
 		Button btJoin = new Button("Join");
 		Button btInstructions = new Button("How to Play");
 		hostJoin.getChildren().addAll(btHost, btJoin, btInstructions);
-		hostJoinScene = new Scene(hostJoin, 1000, 500);
+		hostJoinScene = new Scene(hostJoin, 500, 300);
 		
 		GridPane game = new GridPane();
 		MenuBar menuBar = new MenuBar();
+		menuBar.setPrefWidth(900);
 		Menu options = new Menu("Options");
 		menuBar.getMenus().add(options);
 		TextArea textOutput = new TextArea();
@@ -79,27 +79,137 @@ public class TheRoyalGameOfUr extends Application{
 		
 		GameBoard gameBoard = new GameBoard();
 		
+		GamePiece[] blackPieces = new GamePiece[7];
+		GamePiece[] whitePieces = new GamePiece[7];
+		
+		for(int i = 0; i < 7; i++){
+			blackPieces[i] = new GamePiece("black");
+			whitePieces[i] = new GamePiece("white");
+		}
+		
 		GamePieceContainer piecesBlackStart = new GamePieceContainer();
+		for(int i = 0; i < 7; i++){
+			blackPieces[i].setOnMouseEntered(new EventHandler<MouseEvent>(){
+				public void handle(MouseEvent e){
+					int pathPosition = ((GamePiece)(e.getSource())).getPathPosition();
+					int rollValue = 0;
+					rollValue += p1D1.getValue();
+					rollValue += p1D2.getValue();
+					rollValue += p1D3.getValue();
+					rollValue += p1D4.getValue();
+					
+					int pathIndex = pathPosition + rollValue;
+					
+					boolean occupied = false;
+					for(int j = 0; j < 7; j++){
+						if(blackPieces[j].getPathPosition() == pathIndex){
+							occupied = true;
+						}
+					}
+					if(rollValue != 0){
+						if(!occupied){
+							if(pathIndex >= 0 && pathIndex <= 14){
+								gameBoard.highlight(pathIndex, "black");
+								((GamePiece)(e.getSource())).setMoveable(true);
+							}
+						}
+					}
+				}
+			});
+			
+			blackPieces[i].setOnMouseExited(new EventHandler<MouseEvent>(){
+				public void handle(MouseEvent e){
+					gameBoard.unHighlight();
+					((GamePiece)(e.getSource())).setMoveable(false);
+				}
+			});
+			
+			blackPieces[i].setOnMouseClicked(new EventHandler<MouseEvent>(){
+				public void handle(MouseEvent e){
+					if(e.getButton() == MouseButton.PRIMARY){
+						if(((GamePiece)(e.getSource())).getMoveable() == true){
+							int pathPosition = ((GamePiece)(e.getSource())).getPathPosition();
+							int rollValue = 0;
+							rollValue += p1D1.getValue();
+							rollValue += p1D2.getValue();
+							rollValue += p1D3.getValue();
+							rollValue += p1D4.getValue();
+							int pathIndex = pathPosition + rollValue;
+							if(pathPosition == -1){
+								((GamePiece)(e.getSource())).setPathPosition(pathIndex);
+								gameBoard.addPiece(((GamePiece)(e.getSource())));
+							}
+							if(pathPosition >= 0 && pathPosition <= 13){
+								if(pathIndex < 14){
+									((GamePiece)(e.getSource())).setPathPosition(pathIndex);
+									gameBoard.updatePiece(((GamePiece)(e.getSource())));
+								}
+							}
+						}
+					}
+				}
+			});
+			piecesBlackStart.addPiece(blackPieces[i]);
+		}
+		
 		GamePieceContainer piecesBlackEnd = new GamePieceContainer();
 		GamePieceContainer piecesWhiteStart = new GamePieceContainer();
+		for(int i = 0; i < 7; i++){
+			whitePieces[i].setOnMouseEntered(new EventHandler<MouseEvent>(){
+				public void handle(MouseEvent e){
+					int pathPosition = ((GamePiece)(e.getSource())).getPathPosition();
+					int rollValue = 0;
+					rollValue += p2D1.getValue();
+					rollValue += p2D2.getValue();
+					rollValue += p2D3.getValue();
+					rollValue += p2D4.getValue();
+					
+					int pathIndex = pathPosition + rollValue;
+					
+					boolean occupied = false;
+					for(int i = 0; i < 7; i++){
+						if(whitePieces[i].getPathPosition() == pathPosition){
+							occupied = true;
+						}
+					}
+					if(rollValue != 0){
+						if(!occupied){
+							if(pathIndex >= 0 && pathIndex <= 14){
+								gameBoard.highlight(pathIndex, "white");
+								//whitePieces[i].setMoveable(true);
+							}
+						}
+					}
+				}
+			});
+			
+			whitePieces[i].setOnMouseExited(new EventHandler<MouseEvent>(){
+				public void handle(MouseEvent e){
+					gameBoard.unHighlight();
+					//whitePieces[i].setMoveable(false);
+				}
+			});
+			piecesWhiteStart.addPiece(whitePieces[i]);
+		}
 		GamePieceContainer piecesWhiteEnd = new GamePieceContainer();
 		
-		game.add(menuBar, 0, 0, 6, 1);
+		game.add(menuBar, 0, 0, 8, 1);
 		game.add(player1Dice, 0, 1, 2, 1);
 		game.add(piecesBlackStart, 2, 1 ,1, 2);
 		game.add(piecesBlackEnd, 3, 1, 1, 2);
-		game.add(textOutput, 4, 1, 2, 5);
-		game.add(gameBoard, 0, 3, 4, 3);
-		game.add(player2Dice, 0, 6, 2, 1);
-		game.add(piecesWhiteStart, 2, 6, 1, 2);
-		game.add(piecesWhiteEnd, 3, 6, 1, 2);
-		game.add(textInput, 0, 7, 6, 1);
+		game.add(textOutput, 5, 1, 3, 5);
+		game.add(gameBoard, 0, 3, 4, 5);
+		game.add(player2Dice, 0, 8, 2, 1);
+		game.add(piecesWhiteStart, 2, 8, 1, 2);
+		game.add(piecesWhiteEnd, 3, 8, 1, 2);
+		game.add(textInput, 0, 9, 8, 1);
 		
-		gameScene = new Scene(game, 1000, 500);
+		gameScene = new Scene(game, 900, 500);
 		
 		
 		primaryStage.setTitle("The Royal Game Of Ur");
 		primaryStage.setScene(hostJoinScene);
+		primaryStage.setResizable(false);
 		primaryStage.show();
 		
 		primaryStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
@@ -120,10 +230,10 @@ public class TheRoyalGameOfUr extends Application{
 						textOutput.appendText("Client connected at " + new Date() + "\n");
 						dataOut = new DataOutputStream(socket.getOutputStream());
 						dataIn = new DataInputStream(socket.getInputStream());
-						player = "Player 1";
+						player = "Player Black";
 						while (true){
 							String message = dataIn.readUTF();
-							textOutput.appendText("Player 2 : " + message + "\n");
+							textOutput.appendText("Player White : " + message + "\n");
 						}
 					}
 					catch(IOException ex){
@@ -132,6 +242,7 @@ public class TheRoyalGameOfUr extends Application{
 				}).start();
 			}
 		});
+		
 		
 		btJoin.setOnAction(new EventHandler<ActionEvent>(){
 			public void handle(ActionEvent e){
@@ -142,10 +253,10 @@ public class TheRoyalGameOfUr extends Application{
 						textOutput.appendText("Connected to a server at " + new Date() + "\n");
 						dataOut = new DataOutputStream(socket.getOutputStream());
 						dataIn = new DataInputStream(socket.getInputStream());
-						player = "Player 2";
+						player = "Player White";
 						while(true){
 							String message = dataIn.readUTF();
-							textOutput.appendText("Player 1 : " + message + "\n");
+							textOutput.appendText("Player Black : " + message + "\n");
 						}
 					}
 					catch(IOException ex){
@@ -156,20 +267,42 @@ public class TheRoyalGameOfUr extends Application{
 		});
 		
 		textInput.setOnKeyPressed(new EventHandler<KeyEvent>(){
-		public void handle(KeyEvent e){
-			if(e.getCode() == KeyCode.ENTER){
-				try{
-					String message = textInput.getText().trim();
-					dataOut.writeUTF(message);
-					dataOut.flush();
-					textInput.setText("");	
-					textOutput.appendText(player + " : " + message + "\n");
-				}
-				catch(IOException ex){
-					System.err.println(ex);
+			public void handle(KeyEvent e){
+				if(e.getCode() == KeyCode.ENTER){
+					try{
+						String message = textInput.getText().trim();
+						dataOut.writeUTF(message);
+						dataOut.flush();
+						textInput.setText("");	
+						textOutput.appendText(player + " : " + message + "\n");
+					}
+					catch(IOException ex){
+						System.err.println(ex);
+					}
 				}
 			}
-		}
-	});
+		});
+		
+		player1Dice.setOnMouseClicked(new EventHandler<MouseEvent>(){
+			public void handle(MouseEvent e){
+				if(e.getButton() == MouseButton.PRIMARY){
+					p1D1.roll();
+					p1D2.roll();
+					p1D3.roll();
+					p1D4.roll();
+				}
+			}
+		});
+		
+		player2Dice.setOnMouseClicked(new EventHandler<MouseEvent>(){
+			public void handle(MouseEvent e){
+				if(e.getButton() == MouseButton.PRIMARY){
+					p2D1.roll();
+					p2D2.roll();
+					p2D3.roll();
+					p2D4.roll();
+				}
+			}
+		});
 	}
 }

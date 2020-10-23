@@ -13,13 +13,16 @@ public class GamePieceContainer extends VBox{
 	public GamePieceContainer(){
 		this.piecesCount = 0;
 		pieces = new StackPane();
-		pieces.getChildren().add(new GamePiece("black"));
 		lblPiecesCount = new Label(Integer.toString(this.piecesCount));
-		this.getChildren().addAll(pieces, lblPiecesCount);
+		this.getChildren().addAll(lblPiecesCount, pieces);
+		this.setMinSize(64, 128);
+		this.setMaxSize(64, 128);
 	}
 	
-	public void addPiece(){
+	public void addPiece(GamePiece gp){
+		this.pieces.getChildren().add(gp);
 		this.piecesCount++;
+		this.lblPiecesCount.setText(Integer.toString(this.piecesCount));
 	}
 	
 	public int getPieces(){

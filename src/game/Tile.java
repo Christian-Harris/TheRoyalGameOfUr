@@ -17,6 +17,8 @@ public class Tile extends ImageView{
 		else if(code == TileCode.NORMAL1){
 			this.setImage(new Image("images//TileNormal1.png"));
 		}
+		this.setFitWidth(64);
+		this.setFitHeight(64);
 	}
 	
 	public TileCode getCode(){

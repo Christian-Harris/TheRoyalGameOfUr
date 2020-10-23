@@ -15,6 +15,8 @@ public class Die extends ImageView{
 		this.roll = (int)(Math.random() * 4) + 1;
 		String image = "images//Roll" + this.roll + ".png";
 		this.setImage(new Image(image));
+		this.setFitWidth(64);
+		this.setFitHeight(64);
 	}
 	
 	public int getValue(){
