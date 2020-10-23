@@ -25,6 +25,12 @@ public class GamePieceContainer extends VBox{
 		this.lblPiecesCount.setText(Integer.toString(this.piecesCount));
 	}
 	
+	public void removePiece(GamePiece gp){
+		this.pieces.getChildren().remove(gp);
+		this.piecesCount--;
+		this.lblPiecesCount.setText(Integer.toString(this.piecesCount));
+	}
+	
 	public int getPieces(){
 		return this.piecesCount;
 	}

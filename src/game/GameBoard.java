@@ -102,13 +102,21 @@ public class GameBoard extends GridPane{
 		}
 	}
 	
+	public void remove(GamePiece gp){
+		this.getChildren().remove(gp);
+	}
+	
 	public void highlight(int pathIndex, String path){
 		if(pathIndex == 14){
 			if(path.equals("black")){
-				
+				this.setColumnIndex(highlighter, 5);
+				this.setRowIndex(highlighter, 0);
+				highlighter.setVisible(true);
 			}
 			else{
-				
+				this.setColumnIndex(highlighter, 5);
+				this.setRowIndex(highlighter, 2);
+				highlighter.setVisible(true);
 			}
 		}
 		else{

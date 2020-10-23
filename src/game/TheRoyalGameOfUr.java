@@ -88,6 +88,7 @@ public class TheRoyalGameOfUr extends Application{
 		}
 		
 		GamePieceContainer piecesBlackStart = new GamePieceContainer();
+		GamePieceContainer piecesBlackEnd = new GamePieceContainer();
 		for(int i = 0; i < 7; i++){
 			blackPieces[i].setOnMouseEntered(new EventHandler<MouseEvent>(){
 				public void handle(MouseEvent e){
@@ -102,7 +103,7 @@ public class TheRoyalGameOfUr extends Application{
 					
 					boolean occupied = false;
 					for(int j = 0; j < 7; j++){
-						if(blackPieces[j].getPathPosition() == pathIndex){
+						if(blackPieces[j].getPathPosition() == pathIndex && pathIndex != 14){
 							occupied = true;
 						}
 					}
@@ -137,12 +138,18 @@ public class TheRoyalGameOfUr extends Application{
 							int pathIndex = pathPosition + rollValue;
 							if(pathPosition == -1){
 								((GamePiece)(e.getSource())).setPathPosition(pathIndex);
+								piecesBlackStart.removePiece(((GamePiece)(e.getSource())));
 								gameBoard.addPiece(((GamePiece)(e.getSource())));
 							}
 							if(pathPosition >= 0 && pathPosition <= 13){
 								if(pathIndex < 14){
 									((GamePiece)(e.getSource())).setPathPosition(pathIndex);
 									gameBoard.updatePiece(((GamePiece)(e.getSource())));
+								}
+								if(pathIndex == 14){
+									((GamePiece)(e.getSource())).setPathPosition(pathIndex);
+									gameBoard.remove(((GamePiece)(e.getSource())));
+									piecesBlackEnd.addPiece(((GamePiece)(e.getSource())));
 								}
 							}
 						}
@@ -152,8 +159,9 @@ public class TheRoyalGameOfUr extends Application{
 			piecesBlackStart.addPiece(blackPieces[i]);
 		}
 		
-		GamePieceContainer piecesBlackEnd = new GamePieceContainer();
+		
 		GamePieceContainer piecesWhiteStart = new GamePieceContainer();
+		GamePieceContainer piecesWhiteEnd = new GamePieceContainer();
 		for(int i = 0; i < 7; i++){
 			whitePieces[i].setOnMouseEntered(new EventHandler<MouseEvent>(){
 				public void handle(MouseEvent e){
@@ -167,8 +175,8 @@ public class TheRoyalGameOfUr extends Application{
 					int pathIndex = pathPosition + rollValue;
 					
 					boolean occupied = false;
-					for(int i = 0; i < 7; i++){
-						if(whitePieces[i].getPathPosition() == pathPosition){
+					for(int j = 0; j < 7; j++){
+						if(whitePieces[j].getPathPosition() == pathIndex && pathIndex != 14){
 							occupied = true;
 						}
 					}
@@ -176,7 +184,7 @@ public class TheRoyalGameOfUr extends Application{
 						if(!occupied){
 							if(pathIndex >= 0 && pathIndex <= 14){
 								gameBoard.highlight(pathIndex, "white");
-								//whitePieces[i].setMoveable(true);
+								((GamePiece)(e.getSource())).setMoveable(true);
 							}
 						}
 					}
@@ -186,12 +194,45 @@ public class TheRoyalGameOfUr extends Application{
 			whitePieces[i].setOnMouseExited(new EventHandler<MouseEvent>(){
 				public void handle(MouseEvent e){
 					gameBoard.unHighlight();
-					//whitePieces[i].setMoveable(false);
+					((GamePiece)(e.getSource())).setMoveable(false);
 				}
 			});
+			
+			whitePieces[i].setOnMouseClicked(new EventHandler<MouseEvent>(){
+				public void handle(MouseEvent e){
+					if(e.getButton() == MouseButton.PRIMARY){
+						if(((GamePiece)(e.getSource())).getMoveable() == true){
+							int pathPosition = ((GamePiece)(e.getSource())).getPathPosition();
+							int rollValue = 0;
+							rollValue += p2D1.getValue();
+							rollValue += p2D2.getValue();
+							rollValue += p2D3.getValue();
+							rollValue += p2D4.getValue();
+							int pathIndex = pathPosition + rollValue;
+							if(pathPosition == -1){
+								((GamePiece)(e.getSource())).setPathPosition(pathIndex);
+								piecesWhiteStart.removePiece(((GamePiece)(e.getSource())));
+								gameBoard.addPiece(((GamePiece)(e.getSource())));
+							}
+							if(pathPosition >= 0 && pathPosition <= 13){
+								if(pathIndex < 14){
+									((GamePiece)(e.getSource())).setPathPosition(pathIndex);
+									gameBoard.updatePiece(((GamePiece)(e.getSource())));
+								}
+								if(pathIndex == 14){
+									((GamePiece)(e.getSource())).setPathPosition(pathIndex);
+									gameBoard.remove(((GamePiece)(e.getSource())));
+									piecesWhiteEnd.addPiece(((GamePiece)(e.getSource())));
+								}
+							}
+						}
+					}
+				}
+			});
+			
 			piecesWhiteStart.addPiece(whitePieces[i]);
 		}
-		GamePieceContainer piecesWhiteEnd = new GamePieceContainer();
+		
 		
 		game.add(menuBar, 0, 0, 8, 1);
 		game.add(player1Dice, 0, 1, 2, 1);
