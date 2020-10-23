@@ -45,6 +45,11 @@ public class TheRoyalGameOfUr extends Application{
 	
 	private boolean running;
 	
+	private final GameBoard gameBoard = new GameBoard();
+		
+	private final GamePiece[] blackPieces = new GamePiece[7];
+	private final GamePiece[] whitePieces = new GamePiece[7];
+	
 	public void start(Stage primaryStage){
 		Pane hostJoin = new VBox();
 		Button btHost = new Button("Host");
@@ -77,11 +82,6 @@ public class TheRoyalGameOfUr extends Application{
 		player1Dice.getChildren().addAll(p1D1, p1D2, p1D3, p1D4);
 		player2Dice.getChildren().addAll(p2D1, p2D2, p2D3, p2D4);
 		
-		GameBoard gameBoard = new GameBoard();
-		
-		GamePiece[] blackPieces = new GamePiece[7];
-		GamePiece[] whitePieces = new GamePiece[7];
-		
 		for(int i = 0; i < 7; i++){
 			blackPieces[i] = new GamePiece("black");
 			whitePieces[i] = new GamePiece("white");
@@ -89,6 +89,9 @@ public class TheRoyalGameOfUr extends Application{
 		
 		GamePieceContainer piecesBlackStart = new GamePieceContainer();
 		GamePieceContainer piecesBlackEnd = new GamePieceContainer();
+		GamePieceContainer piecesWhiteStart = new GamePieceContainer();
+		GamePieceContainer piecesWhiteEnd = new GamePieceContainer();
+		
 		for(int i = 0; i < 7; i++){
 			blackPieces[i].setOnMouseEntered(new EventHandler<MouseEvent>(){
 				public void handle(MouseEvent e){
@@ -143,6 +146,15 @@ public class TheRoyalGameOfUr extends Application{
 							}
 							if(pathPosition >= 0 && pathPosition <= 13){
 								if(pathIndex < 14){
+									if(pathIndex >= 4 && pathIndex <= 11){
+										for(int j = 0; j < 7; j++){
+											if(whitePieces[j].getPathPosition() == pathIndex){
+												whitePieces[j].setPathPosition(-1);
+												gameBoard.remove(whitePieces[j]);
+												piecesWhiteStart.addPiece(whitePieces[j]);
+											}
+										}
+									}
 									((GamePiece)(e.getSource())).setPathPosition(pathIndex);
 									gameBoard.updatePiece(((GamePiece)(e.getSource())));
 								}
@@ -160,8 +172,7 @@ public class TheRoyalGameOfUr extends Application{
 		}
 		
 		
-		GamePieceContainer piecesWhiteStart = new GamePieceContainer();
-		GamePieceContainer piecesWhiteEnd = new GamePieceContainer();
+		
 		for(int i = 0; i < 7; i++){
 			whitePieces[i].setOnMouseEntered(new EventHandler<MouseEvent>(){
 				public void handle(MouseEvent e){
@@ -216,6 +227,15 @@ public class TheRoyalGameOfUr extends Application{
 							}
 							if(pathPosition >= 0 && pathPosition <= 13){
 								if(pathIndex < 14){
+									if(pathIndex >= 4 && pathIndex <= 11){
+										for(int j = 0; j < 7; j++){
+											if(blackPieces[j].getPathPosition() == pathIndex){
+												blackPieces[j].setPathPosition(-1);
+												gameBoard.remove(blackPieces[j]);
+												piecesBlackStart.addPiece(blackPieces[j]);
+											}
+										}
+									}
 									((GamePiece)(e.getSource())).setPathPosition(pathIndex);
 									gameBoard.updatePiece(((GamePiece)(e.getSource())));
 								}
