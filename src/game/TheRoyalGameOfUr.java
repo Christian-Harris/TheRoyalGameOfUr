@@ -23,8 +23,8 @@ import javafx.stage.WindowEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.MouseButton;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.IOException;
 
 import java.net.ServerSocket;
@@ -34,8 +34,8 @@ import java.util.Date;
 import java.util.ArrayList;
 
 public class TheRoyalGameOfUr extends Application{
-	private DataOutputStream dataOut = null;
-	private DataInputStream dataIn = null;
+	private ObjectOutputStream dataOut = null;
+	private ObjectInputStream dataIn = null;
 	
 	private Scene hostJoinScene;
 	private Scene gameScene;
@@ -45,10 +45,20 @@ public class TheRoyalGameOfUr extends Application{
 	
 	private boolean running;
 	
-	private final GameBoard gameBoard = new GameBoard();
+	private GameBoard gameBoard = new GameBoard();
 		
-	private final GamePiece[] blackPieces = new GamePiece[7];
-	private final GamePiece[] whitePieces = new GamePiece[7];
+	private GamePiece[] blackPieces = new GamePiece[7];
+	private GamePiece[] whitePieces = new GamePiece[7];
+	
+	private Die p1D1;
+	private Die p1D2;
+	private Die p1D3;
+	private Die p1D4;
+	
+	private Die p2D1;
+	private Die p2D2;
+	private Die p2D3;
+	private Die p2D4;
 	
 	public void start(Stage primaryStage){
 		Pane hostJoin = new VBox();
@@ -69,15 +79,15 @@ public class TheRoyalGameOfUr extends Application{
 		HBox player1Dice = new HBox();
 		HBox player2Dice = new HBox();
 		
-		Die p1D1 = new Die();
-		Die p1D2 = new Die();
-		Die p1D3 = new Die();
-		Die p1D4 = new Die();
+		p1D1 = new Die();
+		p1D2 = new Die();
+		p1D3 = new Die();
+		p1D4 = new Die();
 		
-		Die p2D1 = new Die();
-		Die p2D2 = new Die();
-		Die p2D3 = new Die();
-		Die p2D4 = new Die();
+		p2D1 = new Die();
+		p2D2 = new Die();
+		p2D3 = new Die();
+		p2D4 = new Die();
 		
 		player1Dice.getChildren().addAll(p1D1, p1D2, p1D3, p1D4);
 		player2Dice.getChildren().addAll(p2D1, p2D2, p2D3, p2D4);
@@ -289,15 +299,31 @@ public class TheRoyalGameOfUr extends Application{
 						textOutput.appendText("Server started at " + new Date() + "\n");
 						Socket socket = serverSocket.accept();
 						textOutput.appendText("Client connected at " + new Date() + "\n");
-						dataOut = new DataOutputStream(socket.getOutputStream());
-						dataIn = new DataInputStream(socket.getInputStream());
+						dataOut = new ObjectOutputStream(socket.getOutputStream());
+						dataIn = new ObjectInputStream(socket.getInputStream());
 						player = "Player Black";
 						while (true){
-							String message = dataIn.readUTF();
-							textOutput.appendText("Player White : " + message + "\n");
+							GameMove move = (GameMove)(dataIn.readObject());
+							if(move.getType() == 0){
+								String message = (String)(move.getData());
+								textOutput.appendText("Player White : " + message + "\n");
+							}
+							else if(move.getType() == 1){
+								DiceData data = (DiceData)(move.getData());
+								p2D1.setRoll(data.getRoll1());
+								p2D2.setRoll(data.getRoll2());
+								p2D3.setRoll(data.getRoll3());
+								p2D4.setRoll(data.getRoll4());
+							}
+							else if(move.getType() == 2){
+								
+							}
 						}
 					}
 					catch(IOException ex){
+						ex.printStackTrace();
+					}
+					catch(ClassNotFoundException ex){
 						ex.printStackTrace();
 					}
 				}).start();
@@ -312,15 +338,31 @@ public class TheRoyalGameOfUr extends Application{
 					try{
 						Socket socket = new Socket("localhost", 8000);
 						textOutput.appendText("Connected to a server at " + new Date() + "\n");
-						dataOut = new DataOutputStream(socket.getOutputStream());
-						dataIn = new DataInputStream(socket.getInputStream());
+						dataOut = new ObjectOutputStream(socket.getOutputStream());
+						dataIn = new ObjectInputStream(socket.getInputStream());
 						player = "Player White";
 						while(true){
-							String message = dataIn.readUTF();
-							textOutput.appendText("Player Black : " + message + "\n");
+							GameMove move = (GameMove)(dataIn.readObject());
+							if(move.getType() == 0){
+								String message = (String)(move.getData());
+								textOutput.appendText("Player Black : " + message + "\n");
+							}
+							else if(move.getType() == 1){
+								DiceData data = (DiceData)(move.getData());
+								p1D1.setRoll(data.getRoll1());
+								p1D2.setRoll(data.getRoll2());
+								p1D3.setRoll(data.getRoll3());
+								p1D4.setRoll(data.getRoll4());
+							}
+							else if(move.getType() == 2){
+								
+							}
 						}
 					}
 					catch(IOException ex){
+						ex.printStackTrace();
+					}
+					catch(ClassNotFoundException ex){
 						ex.printStackTrace();
 					}
 				}).start();
@@ -332,13 +374,14 @@ public class TheRoyalGameOfUr extends Application{
 				if(e.getCode() == KeyCode.ENTER){
 					try{
 						String message = textInput.getText().trim();
-						dataOut.writeUTF(message);
+						GameMove move = new GameMove(0, message);
+						dataOut.writeObject(move);
 						dataOut.flush();
-						textInput.setText("");	
+						textInput.setText("");
 						textOutput.appendText(player + " : " + message + "\n");
 					}
 					catch(IOException ex){
-						System.err.println(ex);
+						ex.printStackTrace();
 					}
 				}
 			}
@@ -351,6 +394,16 @@ public class TheRoyalGameOfUr extends Application{
 					p1D2.roll();
 					p1D3.roll();
 					p1D4.roll();
+					try{
+						DiceData data = new DiceData(p1D1.getRoll(), p1D2.getRoll(), p1D3.getRoll(), p1D4.getRoll());
+						GameMove move = new GameMove(1, data);
+						dataOut.writeObject(move);
+						dataOut.flush();
+						textOutput.appendText(player + " : rolled the dice.\n");
+					}
+					catch(IOException ex){
+						ex.printStackTrace();
+					}
 				}
 			}
 		});
@@ -362,6 +415,16 @@ public class TheRoyalGameOfUr extends Application{
 					p2D2.roll();
 					p2D3.roll();
 					p2D4.roll();
+					try{
+						DiceData data = new DiceData(p2D1.getRoll(), p2D2.getRoll(), p2D3.getRoll(), p2D4.getRoll());
+						GameMove move = new GameMove(1, data);
+						dataOut.writeObject(move);
+						dataOut.flush();
+						textOutput.appendText(player + " : rolled the dice.\n");
+					}
+					catch(IOException ex){
+						ex.printStackTrace();
+					}
 				}
 			}
 		});

@@ -3,6 +3,8 @@ package game;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+import java.io.Serializable;
+
 public class Die extends ImageView{
 	
 	private int roll;
@@ -26,5 +28,15 @@ public class Die extends ImageView{
 		else{
 			return 0;
 		}
+	}
+	
+	public void setRoll(int roll){
+		this.roll = roll;
+		String image = "images//Roll" + this.roll + ".png";
+		this.setImage(new Image(image));
+	}
+	
+	public int getRoll(){
+		return this.roll;
 	}
 }
