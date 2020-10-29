@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 public class Die extends ImageView{
 	
-	private int roll;
+	private int roll = 0;
 	
 	public Die(){
 		this.roll();

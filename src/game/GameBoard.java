@@ -82,7 +82,7 @@ public class GameBoard extends GridPane{
 	}
 	
 	public void addPiece(GamePiece gp){
-		if(gp.getColor().equals("black")){
+		if(gp.getGamePieceCode() == GamePieceCode.BLACK){
 			this.add(gp, this.blackPath.get(gp.getPathPosition()).getColumn(), this.blackPath.get(gp.getPathPosition()).getRow());
 		}
 		else{
@@ -92,7 +92,7 @@ public class GameBoard extends GridPane{
 	}
 	
 	public void updatePiece(GamePiece gp){
-		if(gp.getColor().equals("black")){
+		if(gp.getGamePieceCode() == GamePieceCode.BLACK){
 			this.setColumnIndex(gp, this.blackPath.get(gp.getPathPosition()).getColumn());
 			this.setRowIndex(gp, this.blackPath.get(gp.getPathPosition()).getRow());
 		}
