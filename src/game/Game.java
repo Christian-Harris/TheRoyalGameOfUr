@@ -26,6 +26,7 @@ import javafx.scene.input.MouseButton;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.IOException;
+import java.io.File;
 
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -81,6 +82,9 @@ public class Game extends Application{
 	/** An HBox which holds nodes defining player dice for the white player.*/
 	private HBox whitePlayerDiceBox;
 	
+	/** A scene for displaying game instructions.*/
+	private Scene instructionScene;
+	
 	/** An instance of a game board.*/
 	private GameBoard gameBoard = new GameBoard();
 	
@@ -115,6 +119,18 @@ public class Game extends Application{
 		//The connectionAddress is initialized with localhost so if no address is entered application will automatically attempt to connect to a server running on the local machine.
 		connectionAddress = new TextField("localhost");
 		btInstructions = new Button("How To Play");
+		btInstructions.setOnAction(new EventHandler<ActionEvent>(){
+			@Override
+			public void handle(ActionEvent e){
+				try{
+					File file = new File("files//instructions.txt");
+					java.awt.Desktop.getDesktop().edit(file);
+				}
+				catch(IOException ex){
+					ex.printStackTrace();
+				}
+			}
+		});
 		hostJoinPane.getChildren().addAll(btHost, btJoin,connectionAddress, btInstructions);
 		hostJoinScene = new Scene(hostJoinPane, 500, 300);
 		
@@ -164,7 +180,6 @@ public class Game extends Application{
 			whitePlayerPiecesStart.addPiece(whitePlayerPieces[i]);
 		}
 		
-		gamePane.add(menuBar, 0, 0, 8, 1);
 		gamePane.add(blackPlayerDiceBox, 0, 1, 2, 1);
 		gamePane.add(blackPlayerPiecesStart, 2, 1 ,1, 2);
 		gamePane.add(blackPlayerPiecesEnd, 3, 1, 1, 2);

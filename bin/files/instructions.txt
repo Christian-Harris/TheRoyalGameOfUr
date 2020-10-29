@@ -1,0 +1,13 @@
+Welcome to the Royal Game of Ur.
+
+This is a simple application to facilitate the playing of the Royal Game of Ur.
+
+Instructions:
+Players take turns rolling the dice and moving their pieces.
+After your oll the dice you may move any of your pieces along your path according to the number you rolled. (The application will highlight any legal moves.)
+An exact roll is need to move off the board.
+You cannot land on a square if you already have a piece there.
+If you land on a square with an opponents piece the opposing piece is sent home.
+The first player to move all of their pieces off the end of the board is the winner.
+If you land on a tile marked with an R you take an extra turn.
+If you roll a 0 you lose your turn.
