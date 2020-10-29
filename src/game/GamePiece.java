@@ -7,11 +7,11 @@ public class GamePiece extends ImageView{
 	
 	private int pathPosition;
 	private boolean moveable;
-	private String color;
+	private GamePieceCode code;
 	
-	public GamePiece(String color){
-		this.color = color;
-		if(color.equalsIgnoreCase("white")){
+	public GamePiece(GamePieceCode code){
+		this.code = code;
+		if(code == GamePieceCode.WHITE){
 			this.setImage(new Image("images//PieceWhite.png"));
 		}
 		else{
@@ -39,7 +39,7 @@ public class GamePiece extends ImageView{
 		return this.moveable;
 	}
 	
-	public String getColor(){
-		return this.color;
+	public GamePieceCode getGamePieceCode(){
+		return this.code;
 	}
 }
