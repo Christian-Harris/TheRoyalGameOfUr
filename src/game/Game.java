@@ -32,7 +32,6 @@ import java.net.Socket;
 import java.net.SocketException;
 
 import java.util.Date;
-import java.util.ArrayList;
 
 public class Game extends Application{
 	private ObjectOutputStream dataOut;
@@ -59,8 +58,6 @@ public class Game extends Application{
 	private TextField textInput;
 	private HBox blackPlayerDiceBox;
 	private HBox whitePlayerDiceBox;
-	
-	private boolean running;
 	
 	private GameBoard gameBoard = new GameBoard();
 	
@@ -170,33 +167,42 @@ public class Game extends Application{
 			new Thread(() ->{
 				try{
 					if(((Button)(e.getSource())).getText().equals("Host")){
-						playerCode = PlayerCode.BLACK;
 						whitePlayerDiceBox.setDisable(true);
 						for(int i = 0; i < 7; i++){
 							whitePlayerPieces[i].setDisable(true);
 						}
+						playerCode = PlayerCode.BLACK;
 						serverSocket = new ServerSocket(8000);
 						textOutput.appendText("Server started at " + new Date() + "\n");
 						socket = serverSocket.accept();
 						textOutput.appendText("Client connected at " + new Date() + "\n");
 					}
 					else{
+						playerCode = PlayerCode.WHITE;
 						blackPlayerDiceBox.setDisable(true);
 						for(int i = 0; i < 7; i++){
 							blackPlayerPieces[i].setDisable(true);
 						}
-						playerCode = PlayerCode.WHITE;
 						socket = new Socket(connectionAddress.getText().trim(), 8000);
 						textOutput.appendText("Connected to a server at " + new Date() + "\n");
 					}
 					dataOut = new ObjectOutputStream(socket.getOutputStream());
 					dataIn = new ObjectInputStream(socket.getInputStream());
+	
 					
 					while (true){
 						GameMove move = (GameMove)(dataIn.readObject());
 						if(move.getType() == 0){
 							String message = (String)(move.getData());
 							textOutput.appendText(move.getPlayerCode().getName() + " player : " + message + "\n");
+							try{
+								GameMove dataReceived = new GameMove(3, "Data Received", playerCode);
+								dataOut.writeObject(dataReceived);
+								dataOut.flush();
+							}
+							catch(IOException ex){
+								ex.printStackTrace();
+							}
 						}
 						else if(move.getType() == 1){
 							DiceData data = (DiceData)(move.getData());
@@ -211,6 +217,14 @@ public class Game extends Application{
 								blackPlayerDice[1].setRoll(data.getRoll2());
 								blackPlayerDice[2].setRoll(data.getRoll3());
 								blackPlayerDice[3].setRoll(data.getRoll4());
+							}
+							try{
+								GameMove dataReceived = new GameMove(3, "Data Received", playerCode);
+								dataOut.writeObject(dataReceived);
+								dataOut.flush();
+							}
+							catch(IOException ex){
+								ex.printStackTrace();
 							}
 						}
 						else if(move.getType() == 2){
@@ -242,10 +256,93 @@ public class Game extends Application{
 										gameBoard.addPiece(blackPlayerPieces[index]);
 									}
 								}
-								//else if(){
-									
-								//}
+								else{
+									if(data.getFinalPathPosition() != 14 && data.getFinalPathPosition() != -1){
+										int index = 0;
+										if(playerCode == PlayerCode.BLACK){
+											for(int i = 0; i < 7; i++){
+												if(whitePlayerPieces[i].getPathPosition() == data.getInitialPathPosition()){
+													index = i;
+													break;
+												}
+											}
+											whitePlayerPieces[index].setPathPosition(data.getFinalPathPosition());
+											gameBoard.updatePiece(whitePlayerPieces[index]);
+										}
+										else{
+											for(int i = 0; i < 7; i++){
+												if(blackPlayerPieces[i].getPathPosition() == data.getInitialPathPosition()){
+													index = i;
+													break;
+												}
+											}
+											blackPlayerPieces[index].setPathPosition(data.getFinalPathPosition());
+											gameBoard.updatePiece(blackPlayerPieces[index]);
+										}
+									}
+									else if(data.getFinalPathPosition() == 14){
+										int index = -1;
+										if(playerCode == PlayerCode.BLACK){
+											for(int i = 0; i < 7; i++){
+												if(whitePlayerPieces[i].getPathPosition() == data.getInitialPathPosition()){
+													index = i;
+													break;
+												}
+											}
+											whitePlayerPieces[index].setPathPosition(data.getFinalPathPosition());
+											gameBoard.remove(whitePlayerPieces[index]);
+											whitePlayerPiecesEnd.addPiece(whitePlayerPieces[index]);
+										}
+										else{
+											for(int i = 0; i < 7; i++){
+												if(blackPlayerPieces[i].getPathPosition() == data.getInitialPathPosition()){
+													index = i;
+													break;
+												}
+											}
+											blackPlayerPieces[index].setPathPosition(data.getFinalPathPosition());
+											gameBoard.remove(blackPlayerPieces[index]);
+											blackPlayerPiecesEnd.addPiece(blackPlayerPieces[index]);
+										}
+									}
+									else{
+										int index = -1;
+										if(playerCode == PlayerCode.BLACK){
+												for(int i = 0; i < 7; i++){
+													if(blackPlayerPieces[i].getPathPosition() == data.getInitialPathPosition()){
+														index = i;
+														break;
+													}
+												}
+												blackPlayerPieces[index].setPathPosition(-1);
+												gameBoard.remove(blackPlayerPieces[index]);
+												blackPlayerPiecesStart.addPiece(blackPlayerPieces[index]);
+										}
+										else{
+											for(int i = 0; i < 7; i++){
+													if(whitePlayerPieces[i].getPathPosition() == data.getInitialPathPosition()){
+														index = i;
+														break;
+													}
+												}
+												whitePlayerPieces[index].setPathPosition(-1);
+												gameBoard.remove(whitePlayerPieces[index]);
+												whitePlayerPiecesStart.addPiece(whitePlayerPieces[index]);
+										}
+									}
+								}
+								try{
+								GameMove dataReceived = new GameMove(3, "Data Received", playerCode);
+								dataOut.writeObject(dataReceived);
+								dataOut.flush();
+								}
+								catch(IOException ex){
+									ex.printStackTrace();
+								}
 							});
+						}
+						else if(move.getType() == 3){
+							//Data was received.
 						}
 					}
 				}
@@ -397,31 +494,69 @@ public class Game extends Application{
 								for(int i = 0; i < 7; i++){
 									if(playerCode == PlayerCode.BLACK){
 										if(whitePlayerPieces[i].getPathPosition() == pathIndex){
-											whitePlayerPieces[i].setPathPosition(-1);
-											gameBoard.remove(whitePlayerPieces[i]);
-											whitePlayerPiecesStart.addPiece(whitePlayerPieces[i]);
+											try{
+												whitePlayerPieces[i].setPathPosition(-1);
+												gameBoard.remove(whitePlayerPieces[i]);
+												whitePlayerPiecesStart.addPiece(whitePlayerPieces[i]);
+												MovedPieceData data = new MovedPieceData(whitePlayerPieces[i].getGamePieceCode(), pathIndex, -1);
+												GameMove move = new GameMove(2, data, playerCode);
+												dataOut.writeObject(move);
+												dataOut.flush();
+											}
+											catch(IOException ex){
+												ex.printStackTrace();
+											}
 										}
 									}
 									else{
 										if(blackPlayerPieces[i].getPathPosition() == pathIndex){
-										blackPlayerPieces[i].setPathPosition(-1);
-										gameBoard.remove(blackPlayerPieces[i]);
-										blackPlayerPiecesStart.addPiece(blackPlayerPieces[i]);
+											try{
+												blackPlayerPieces[i].setPathPosition(-1);
+												gameBoard.remove(blackPlayerPieces[i]);
+												blackPlayerPiecesStart.addPiece(blackPlayerPieces[i]);
+												MovedPieceData data = new MovedPieceData(blackPlayerPieces[i].getGamePieceCode(), pathIndex, -1);
+												GameMove move = new GameMove(2, data, playerCode);
+												dataOut.writeObject(move);
+												dataOut.flush();
+											}
+											catch(IOException ex){
+												ex.printStackTrace();
+											}
 										}
 									}
 								}
+							}
+							try{
+								((GamePiece)(e.getSource())).setPathPosition(pathIndex);
+								gameBoard.updatePiece(((GamePiece)(e.getSource())));
+								MovedPieceData data = new MovedPieceData(((GamePiece)(e.getSource())).getGamePieceCode(), pathPosition, pathIndex);
+								GameMove move = new GameMove(2, data, playerCode);
+								dataOut.writeObject(move);
+								dataOut.flush();
+							}
+							catch(IOException ex){
+								ex.printStackTrace();
 							}
 							((GamePiece)(e.getSource())).setPathPosition(pathIndex);
 							gameBoard.updatePiece(((GamePiece)(e.getSource())));
 						}
 						else if(pathIndex == 14){
-							((GamePiece)(e.getSource())).setPathPosition(pathIndex);
-							gameBoard.remove(((GamePiece)(e.getSource())));
-							if(playerCode == PlayerCode.BLACK){
-								blackPlayerPiecesEnd.addPiece(((GamePiece)(e.getSource())));
+							try{
+								((GamePiece)(e.getSource())).setPathPosition(pathIndex);
+								gameBoard.remove(((GamePiece)(e.getSource())));
+								if(playerCode == PlayerCode.BLACK){
+									blackPlayerPiecesEnd.addPiece(((GamePiece)(e.getSource())));
+								}
+								else{
+									whitePlayerPiecesEnd.addPiece(((GamePiece)(e.getSource())));
+								}
+								MovedPieceData data = new MovedPieceData(((GamePiece)(e.getSource())).getGamePieceCode(), pathPosition, pathIndex);
+								GameMove move = new GameMove(2, data, playerCode);
+								dataOut.writeObject(move);
+								dataOut.flush();
 							}
-							else{
-								whitePlayerPiecesEnd.addPiece(((GamePiece)(e.getSource())));
+							catch(IOException ex){
+								ex.printStackTrace();
 							}
 						}
 					}
