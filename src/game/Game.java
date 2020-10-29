@@ -309,12 +309,7 @@ public class Game extends Application{
 			if(rollValue != 0){
 				if(!occupied){
 					if(pathIndex >= 0 && pathIndex <= 14){
-						if(((GamePiece)(e.getSource())).getGamePieceCode() == GamePieceCode.BLACK){
-							gameBoard.highlight(pathIndex, "black");
-						}
-						else{
-							gameBoard.highlight(pathIndex, "white");
-						}
+						gameBoard.highlight(pathIndex, ((GamePiece)(e.getSource())).getGamePieceCode().getName().toLowerCase());
 						((GamePiece)(e.getSource())).setMoveable(true);
 					}
 				}
