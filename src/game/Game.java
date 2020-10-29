@@ -33,67 +33,99 @@ import java.net.SocketException;
 
 import java.util.Date;
 
+/**
+ * <h2>Game</h2>
+ * <p>This class is an implementation of a client/server system which plays "The Royal Game of Ur".</p>
+ * <p>Created on 29 October 2020</p>
+ * @author Christian Harris
+ */
+
 public class Game extends Application{
+	/** An output stream for game data.*/
 	private ObjectOutputStream dataOut;
+	/** An input stream for game data.*/
 	private ObjectInputStream dataIn;
+	/** A server socket for connecting to a potential client.*/
 	private ServerSocket serverSocket;
+	/** A socket for connecting to a potential server.*/
 	private Socket socket;
 	
+	/** A PlayerCode which defines this player as either the black player or the white player.*/
 	private PlayerCode playerCode;
 	
+	/** A scene for a host/join screen.*/
 	private Scene hostJoinScene;
+	/** A pain for a host/join screen.*/
 	private Pane hostJoinPane;
+	/** A button to launch the application as a server.*/
 	private Button btHost;
+	/** A button to launch the application as a client.*/
 	private Button btJoin;
+	/** A TextField to enter the address to connect to.*/
 	private TextField connectionAddress;
+	/** A button to display a screen with instructions.*/
 	private Button btInstructions;
 	
-	
+	/** A stage for placing scenes related to the game.*/
 	private Stage gameStage;
+	/** A scene for placing game nodes.*/
 	private Scene gameScene;
+	/** A GridPane for organizing game nodes.*/
 	private GridPane gamePane;
-	private MenuBar menuBar;
-	private Menu optionsMenu;
+	/** A TextArea to display messages.*/
 	private TextArea textOutput;
+	/** A TextField to enter messages.*/
 	private TextField textInput;
+	/** An HBox which holds nodes defining player dice for the black player.*/
 	private HBox blackPlayerDiceBox;
+	/** An HBox which holds nodes defining player dice for the white player.*/
 	private HBox whitePlayerDiceBox;
 	
+	/** An instance of a game board.*/
 	private GameBoard gameBoard = new GameBoard();
 	
+	/** An array of dice to hold references to the black players dice.*/
 	private Die[] blackPlayerDice;
+	/** An array of dice to hold reerences to the white players dice.*/
 	private Die[] whitePlayerDice;
 		
+	/** An array of GamePieces to hold references to the black players pieces.*/
 	private GamePiece[] blackPlayerPieces;
+	/** An array of GamePieces to hold references to the white players pieces.*/
 	private GamePiece[] whitePlayerPieces;
 	
+	/** Defines the starting area for the black players GamePieces.*/
 	private GamePieceContainer blackPlayerPiecesStart;
+	/** Defines the ending area for the black players GamePieces.*/
 	private GamePieceContainer blackPlayerPiecesEnd;
+	/** Defines the starting area for the white players GamePieces.*/
 	private GamePieceContainer whitePlayerPiecesStart;
+	/** Defines the ending area for the white players GamePieces.*/
 	private GamePieceContainer whitePlayerPiecesEnd;
 	
 	public void start(Stage primaryStage){
+		//Instantiate elements for the hostJoinScene.
 		hostJoinPane = new VBox();
 		btHost = new Button("Host");
 		btJoin = new Button("Join");
+		//Add an action listener to the Host and Join buttons for making connections.
 		HostJoinActionHandler hostJoinAction = new HostJoinActionHandler();
 		btHost.setOnAction(hostJoinAction);
 		btJoin.setOnAction(hostJoinAction);
+		//The connectionAddress is initialized with localhost so if no address is entered application will automatically attempt to connect to a server running on the local machine.
 		connectionAddress = new TextField("localhost");
 		btInstructions = new Button("How To Play");
 		hostJoinPane.getChildren().addAll(btHost, btJoin,connectionAddress, btInstructions);
 		hostJoinScene = new Scene(hostJoinPane, 500, 300);
 		
+		//Instantiate all the elements for the gameScene.
 		gamePane = new GridPane();
-		menuBar = new MenuBar();
-		menuBar.setPrefWidth(900);
-		optionsMenu = new Menu("Options");
-		menuBar.getMenus().add(optionsMenu);
 		textOutput = new TextArea();
 		textInput = new TextField();
+		//Add an action listener to textInput for sending messages.
 		textInput.setOnKeyPressed(new MessengerHandler());
 		
-		
+		//Here we create the dice objects for both players and add them to the approprate containers.
 		blackPlayerDiceBox = new HBox();
 		whitePlayerDiceBox = new HBox();
 		DieRollHandler dieRollHandler = new DieRollHandler();
@@ -151,6 +183,7 @@ public class Game extends Application{
 		gameStage.setResizable(false);
 		gameStage.show();
 		
+		//The following set on close request ensures that all threads are terminated when the main application closes.
 		gameStage.setOnCloseRequest(new EventHandler<WindowEvent>(){
 			public void handle(WindowEvent e){
 				Platform.exit();
@@ -158,7 +191,7 @@ public class Game extends Application{
 			}
 		});
 	}
-	
+	//HostJoinActionHandler is an inner class which controls the connection of server/clients as well as the main game loop.
 	private class HostJoinActionHandler implements EventHandler<ActionEvent>{
 		@Override
 		public void handle(ActionEvent e){			
@@ -189,7 +222,7 @@ public class Game extends Application{
 					dataOut = new ObjectOutputStream(socket.getOutputStream());
 					dataIn = new ObjectInputStream(socket.getInputStream());
 	
-					
+					//The main game loop.
 					while (true){
 						GameMove move = (GameMove)(dataIn.readObject());
 						if(move.getType() == 0){
@@ -355,7 +388,7 @@ public class Game extends Application{
 			}).start();
 		}
 	}
-	
+	//MessageHandler is an inner class which handles the sending of messages between clients and servers.
 	private class MessengerHandler implements EventHandler<KeyEvent>{
 		@Override
 		public void handle(KeyEvent e){
@@ -374,7 +407,7 @@ public class Game extends Application{
 			}
 		}
 	}
-	
+	//HoverOverPieceEnteredHandler is an inner class which handles highlight the legal moves for players when they hover over a GamePiece.
 	private class HoverOverPieceEnteredHandler implements EventHandler<MouseEvent>{
 		@Override
 		public void handle(MouseEvent e){
@@ -413,7 +446,7 @@ public class Game extends Application{
 			}
 		}
 	}
-	
+	//HoverOverPieceExitedHandler is an inner class which handles removing the highlighting when a GamePiece is no longer being hovered over.
 	private class HoverOverPieceExitedHandler implements EventHandler<MouseEvent>{
 		@Override
 		public void handle(MouseEvent e){
@@ -422,6 +455,7 @@ public class Game extends Application{
 		}
 	}
 	
+	//DieRollHandler is an inner class which handles rolling dice for players when they click in the diceBox.
 	private class DieRollHandler implements EventHandler<MouseEvent>{
 		@Override
 		public void handle(MouseEvent e){
@@ -453,6 +487,7 @@ public class Game extends Application{
 		}			
 	}
 	
+	//GamePieceClickedHandler is an inner class which handles moving game pieces as they are clicked on by players.
 	private class GamePieceClickedHandler implements EventHandler<MouseEvent>{
 		@Override
 		public void handle(MouseEvent e){

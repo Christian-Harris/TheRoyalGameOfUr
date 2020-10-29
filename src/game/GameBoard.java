@@ -8,16 +8,26 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
+/**
+ * <h2>Game</h2>
+ * <p>This class implements a GameBoard which is a collection of Tiles arranged in a GridPane.</p>
+ * <p>Created on 29 October 2020</p>
+ * @author Christian Harris
+ */
+
 public class GameBoard extends GridPane{
 	
+	/** A set of CoordinatePairs which defines the path black GamePieces take during gameplay.*/
 	private ArrayList<CoordinatePair> blackPath = new ArrayList<CoordinatePair>();
+	/** A set of CoordinatePairs which defines the path white GamePieces take during gameplay.*/
 	private ArrayList<CoordinatePair> whitePath = new ArrayList<CoordinatePair>();
 	
+	/** A Region object used to define a highlighter for the allowable moves to be made by players.*/
 	private Region highlighter = new Region();
 	
+	/** <p>Creates a GameBoard for The Royal Game of Ur</p>*/
 	public GameBoard(){
-		
-		
+
 		this.add(new Tile(TileCode.ROSETTE), 0, 0);
 		this.add(new Tile(TileCode.NORMAL1), 1, 0);
 		this.add(new Tile(TileCode.NORMAL1), 2, 0);
@@ -81,6 +91,10 @@ public class GameBoard extends GridPane{
 		
 	}
 	
+	/**
+	*	<p>Adds GamePieces to the GameBoard.</p>
+	*	@param gp the game piece to be added.
+	*/
 	public void addPiece(GamePiece gp){
 		if(gp.getGamePieceCode() == GamePieceCode.BLACK){
 			this.add(gp, this.blackPath.get(gp.getPathPosition()).getColumn(), this.blackPath.get(gp.getPathPosition()).getRow());
@@ -91,6 +105,10 @@ public class GameBoard extends GridPane{
 		
 	}
 	
+	/**
+	*	<p>Updates the information provided by a GamePiece to be properly displayed on the GameBoard.</p>
+	*	@param gp the GamePiece to be updated.
+	*/
 	public void updatePiece(GamePiece gp){
 		if(gp.getGamePieceCode() == GamePieceCode.BLACK){
 			this.setColumnIndex(gp, this.blackPath.get(gp.getPathPosition()).getColumn());
@@ -102,10 +120,19 @@ public class GameBoard extends GridPane{
 		}
 	}
 	
+	/**
+	*	<p>Removes a GamePiece from this GameBoard.</p>
+	*	@param gp the GamePiece to be removed.
+	*/
 	public void remove(GamePiece gp){
 		this.getChildren().remove(gp);
 	}
 	
+	/**
+	*	<p>Highlights a particular node so that a user knows there is a legal move to be made.</p>
+	*	@param pathIndex the index along one of the paths to be highlighted.
+	*	@param path defines either the black or white paths to be highlighted.
+	*/
 	public void highlight(int pathIndex, String path){
 		if(pathIndex == 14){
 			if(path.equals("black")){
@@ -134,6 +161,9 @@ public class GameBoard extends GridPane{
 		}
 	}
 	
+	/**
+	*	<p>Removes highlighting from the GameBoard.</p>
+	*/
 	public void unHighlight(){
 		highlighter.setVisible(false);
 	}
