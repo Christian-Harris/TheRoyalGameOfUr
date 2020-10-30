@@ -16,7 +16,7 @@ public class Tile extends ImageView{
 	
 	/** 
 	*	<p>Creates a Tile with the given TileCode</p>
-	*	@param the TileCode for this Tile.
+	*	@param code the TileCode for this Tile.
 	*/
 	public Tile(TileCode code){
 		this.code = code;

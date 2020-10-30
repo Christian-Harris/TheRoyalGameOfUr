@@ -25,7 +25,7 @@ public class GamePiece extends ImageView{
 	
 	/**
 	*	<p> Creates a GamePiece with the given GamePieceCode.</p>
-	*	@param the GamePieceCode for this GamePiece.
+	*	@param code the GamePieceCode for this GamePiece.
 	*/
 	public GamePiece(GamePieceCode code){
 		this.code = code;
@@ -51,7 +51,7 @@ public class GamePiece extends ImageView{
 	
 	/**
 	*	<p>Gets the pathPosition for this GamePiece.</p>
-	*	@return the pathPosition for this GamePiece.</p>
+	*	@return the pathPosition for this GamePiece.
 	*/
 	public int getPathPosition(){
 		return this.pathPosition;
