@@ -180,15 +180,15 @@ public class Game extends Application{
 			whitePlayerPiecesStart.addPiece(whitePlayerPieces[i]);
 		}
 		
-		gamePane.add(blackPlayerDiceBox, 0, 1, 2, 1);
-		gamePane.add(blackPlayerPiecesStart, 2, 1 ,1, 2);
-		gamePane.add(blackPlayerPiecesEnd, 3, 1, 1, 2);
-		gamePane.add(textOutput, 5, 1, 3, 5);
-		gamePane.add(gameBoard, 0, 3, 4, 5);
-		gamePane.add(whitePlayerDiceBox, 0, 8, 2, 1);
-		gamePane.add(whitePlayerPiecesStart, 2, 8, 1, 2);
-		gamePane.add(whitePlayerPiecesEnd, 3, 8, 1, 2);
-		gamePane.add(textInput, 0, 9, 8, 1);
+		gamePane.add(blackPlayerDiceBox, 0, 0, 2, 1);
+		gamePane.add(blackPlayerPiecesStart, 2, 0, 1, 2);
+		gamePane.add(blackPlayerPiecesEnd, 3, 0, 1, 2);
+		gamePane.add(textOutput, 5, 0, 5, 5);
+		gamePane.add(gameBoard, 0, 2, 4, 5);
+		gamePane.add(whitePlayerDiceBox, 0, 7, 2, 1);
+		gamePane.add(whitePlayerPiecesStart, 2, 7, 1, 2);
+		gamePane.add(whitePlayerPiecesEnd, 3, 7, 1, 2);
+		gamePane.add(textInput, 0, 8, 8, 1);
 		
 		gameScene = new Scene(gamePane, 900, 500);
 		
